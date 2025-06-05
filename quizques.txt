@@ -1,0 +1,62 @@
+Project objective: Create an online quiz portal, where users can explore multiple quiz, attempt the 
+quiz, and save their position on the leaderboard
+Description:
+This project is based on Advance Java concepts like Servlets, JSP, and JDBC which focuses on creating 
+an online Quiz Application. 
+Since this is a web application, users can participate in the online quiz through the Quiz portal. Once 
+they have finished the online quiz, they can view their position on the leaderboard according to the 
+correct answers.
+The online Quiz portal can have two types of users:
+• Admin User
+• Normal User
+Project Features:
+• Admin user has a separate URL to access the admin portal that needs to be authenticated by 
+admin username and password.
+• Admin user can update the profile info as well able to change the password after logging in 
+to the admin portal.
+• Admin user can add the questions using MySQL.
+• Admin user can create a quiz by selecting questions for the quiz and setting a quiz name.
+• Admin user can view the dashboard with the following statistics:
+▪ Total Quiz
+▪ Total Questions
+▪ Total Users
+• Admin user can see the users participated in a quiz along with their leaderboard.
+• Users can explore the quiz that is created by Admin.
+• User can create their profile using new user registration.
+• Users can attempt the quiz and try to give the possible answers.
+• Users can also see whether the given answer is correct or not.
+Tools Required:
+• JSP Page
+• Servlet, JDBC
+• MySQL
+• Tomcat
+Detailed Scenario:
+• Admin wants to create an online quiz for the website users. 
+• Admin adds the set of questions along with their answers via a database schema into the 
+MySQL database.
+• Admin opens the admin web URL and authenticates it by the admin username/password.
+• Once the admin is authenticated, the admin user will be redirected to the dashboard.
+• On the dashboard admin user, the option to Create New Quiz.
+• For creating a new quiz, admin user provides a quiz name and selects the questions from the 
+question set that has already been entered into the database.
+• Once the question is selected, the admin saves the quiz and publishes it for the user.
+• Once the quiz is published, Website users can attempt the quiz.
+• Users open the user-accessible to attempt the quiz.
+• If the user is already existing, sign in to attempt any quiz.
+• Users can also see whether the given answer is correct or not. The correct answer is 
+highlighted differently so the user can easily identify the correct answer.
+• Once the user attempts the complete quiz, the leader board can be seen where the user can 
+compare the result with others in her position.
+• The output screenshots are available in the download attachment for your reference.
+Expected Output:
+• The admin login page has a separate URL, which will look like this.
+• Once the admin logs in, this is how the main dashboard will appear.
+• From the Question Manager section, questions can be added.
+• Once questions have been successfully created, this is how the question list will look.
+• From the Quiz Manager section, quizzes can be created.
+• After selecting questions and creating a quiz, the quiz detail page looks like this.
+• The main page where end users will log in will look like this.
+• After logging in successfully, a quiz list with multiple quizzes to take are displayed.
+• After the quiz, the leaderboard appears, displaying the results of all users who took the quiz.
+
+show implementation for each and every part clearly
