@@ -1,0 +1,1001 @@
+OnlineQuizPortal/
+|-- src/
+|    |-- util/DBConnection.java
+|    |-- model/
+|        |-- Admin.java
+|        |-- User.java
+|        |-- Question.java
+|        |-- Quiz.java
+|        |-- Score.java
+|    |-- dao/
+|        |-- AdminDAO.java
+|        |-- UserDAO.java
+|        |-- QuestionDAO.java
+|        |-- QuizDAO.java
+|        |-- ScoreDAO.java
+|    |-- servlet/
+|        |-- AdminLoginServlet.java
+|        |-- AddQuestionServlet.java
+|        |-- CreateQuizServlet.java
+|        |-- UserRegisterServlet.java
+|        |-- UserLoginServlet.java
+|        |-- AttemptQuizServlet.java
+|        |-- LeaderboardServlet.java
+|-- WebContent/
+|    |-- adminLogin.jsp
+|    |-- adminDashboard.jsp
+|    |-- addQuestion.jsp
+|    |-- createQuiz.jsp
+|    |-- userRegister.jsp
+|    |-- userLogin.jsp
+|    |-- userDashboard.jsp
+|    |-- attemptQuiz.jsp
+|    |-- leaderboard.jsp
+|    |-- WEB-INF/
+|        |-- web.xml
+
+-----------------------------------------------------------------------------
+
+util/DBConnection.java
+package util;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class DBConnection {
+    private static final String URL = "jdbc:mysql://localhost:3306/quiz";
+    private static final String USER = "root";
+    private static final String PASSWORD = "Password@12";
+
+    public static Connection getConnection() throws Exception {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+}
+
+-------------------------------------------------------------------------------
+ model/
+1)Admin.java
+package model;
+
+public class Admin {
+	   private int adminId;
+	    private String username;
+	    private String password;
+	    public String getFullname() {
+			return fullname;
+		}
+		public void setFullname(String fullname) {
+			this.fullname = fullname;
+		}
+		private String  fullname;
+	    // getters and setters
+	    public int getAdminId() { return adminId; }
+	    public void setAdminId(int adminId) { this.adminId = adminId; }
+
+	    public String getUsername()
+	    { return username; 
+	    }
+	    public void setUsername(String username) 
+	    { 
+	    	this.username = username;
+	    }
+
+	    public String getPassword() { 
+	    	return password; 
+	    	}
+	    public void setPassword(String password) {
+	    	this.password = password;
+	    	}
+}
+
+---------------------------------------------------------------------------------------
+2)Question.java
+package model;
+
+public class Question {
+	    private int questionId;
+	    private String questionText;
+	    private String optionA;
+	    private String optionB;
+	    private String optionC;
+	    private String optionD;
+	    private String correctAnswer;
+		public int getQuestionId() {
+			return questionId;
+		}
+		public void setQuestionId(int questionId) {
+			this.questionId = questionId;
+		}
+		public String getQuestionText() {
+			return questionText;
+		}
+		public void setQuestionText(String questionText) {
+			this.questionText = questionText;
+		}
+		public String getOptionA() {
+			return optionA;
+		}
+		public void setOptionA(String optionA) {
+			this.optionA = optionA;
+		}
+		public String getOptionB() {
+			return optionB;
+		}
+		public void setOptionB(String optionB) {
+			this.optionB = optionB;
+		}
+		public String getOptionC() {
+			return optionC;
+		}
+		public void setOptionC(String optionC) {
+			this.optionC = optionC;
+		}
+		public String getOptionD() {
+			return optionD;
+		}
+		public void setOptionD(String optionD) {
+			this.optionD = optionD;
+		}
+		public String getCorrectAnswer() {
+			return correctAnswer;
+		}
+		public void setCorrectAnswer(String correctAnswer) {
+			this.correctAnswer = correctAnswer;
+		}
+	    
+}
+-----------------------------------------------------------------------------
+3)model.java
+package model;
+
+import java.util.List;
+
+public class Quiz {
+    private int quizId;
+    private String quizName;
+    private List<Question> questions;
+	public int getQuizId() {
+		return quizId;
+	}
+	public void setQuizId(int quizId) {
+		this.quizId = quizId;
+	}
+	public String getQuizName() {
+		return quizName;
+	}
+	public void setQuizName(String quizName) {
+		this.quizName = quizName;
+	}
+	public List<Question> getQuestions() {
+		return questions;
+	}
+	public void setQuestions(List<Question> questions) {
+		this.questions = questions;
+	}
+
+}
+-------------------------------------------------------------------------------------------
+4)User.java
+package model;
+
+public class User {
+	  private int userId;
+	    private String username;
+	    private String password;
+	    private String fullname;
+
+	    public int getUserId() { return userId; }
+	    public void setUserId(int userId) { this.userId = userId; }
+
+	    public String getUsername() { return username; }
+	    public void setUsername(String username) { this.username = username; }
+
+	    public String getPassword() { return password; }
+	    public void setPassword(String password) { this.password = password; }
+
+	    public String getFullname() { return fullname; }
+	    public void setFullname(String fullname) { this.fullname = fullname; }
+	}
+
+------------------------------------------------------------------------------------------
+
+dao
+
+1)AdminDAO.java
+package dao;
+
+import model.Admin;
+import util.DBConnection;
+
+import java.sql.*;
+
+public class AdminDAO {
+
+    public Admin validateAdmin(String username, String password) throws Exception {
+        Admin admin = null;
+        String sql = "SELECT * FROM admins WHERE username = ? AND password = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+             
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                admin = new Admin();
+                admin.setAdminId(rs.getInt("admin_id"));
+                admin.setUsername(rs.getString("username"));
+                admin.setFullname(rs.getString("fullname"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return admin;
+    }
+
+
+}
+----------------------------------------------------------------------------------------
+2)QuestionDAO.java
+package dao;
+
+	import model.Question;
+	import util.DBConnection;
+
+	import java.sql.*;
+	import java.util.ArrayList;
+	import java.util.List;
+
+	public class QuestionDAO {
+
+	    public boolean addQuestion(Question question) throws Exception {
+	        String sql = "INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_answer) VALUES (?, ?, ?, ?, ?, ?)";
+
+	        try (Connection conn = DBConnection.getConnection();
+	             PreparedStatement ps = conn.prepareStatement(sql)) {
+	             
+	            ps.setString(1, question.getQuestionText());
+	            ps.setString(2, question.getOptionA());
+	            ps.setString(3, question.getOptionB());
+	            ps.setString(4, question.getOptionC());
+	            ps.setString(5, question.getOptionD());
+	            ps.setString(6, question.getCorrectAnswer());
+
+	            int rowsInserted = ps.executeUpdate();
+	            return rowsInserted > 0;
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	            return false;
+	        }
+	    }
+
+	    public List<Question> getAllQuestions() throws Exception {
+	        List<Question> questions = new ArrayList<>();
+	        String sql = "SELECT * FROM questions";
+
+	        try (Connection conn = DBConnection.getConnection();
+	             Statement stmt = conn.createStatement();
+	             ResultSet rs = stmt.executeQuery(sql)) {
+
+	            while (rs.next()) {
+	                Question question = new Question();
+	                question.setQuestionId(rs.getInt("question_id"));
+	                question.setQuestionText(rs.getString("question_text"));
+	                question.setOptionA(rs.getString("option_a"));
+	                question.setOptionB(rs.getString("option_b"));
+	                question.setOptionC(rs.getString("option_c"));
+	                question.setOptionD(rs.getString("option_d"));
+	                question.setCorrectAnswer(rs.getString("correct_answer"));
+	                questions.add(question);
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	        return questions;
+	    }
+
+}
+-------------------------------------------------------------------------------------
+3)QuizDAO.java
+package dao;
+
+
+import model.Question;
+import model.Quiz;
+import util.DBConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class QuizDAO {
+
+    public boolean createQuiz(Quiz quiz, List<Integer> questionIds) {
+        try (Connection con = DBConnection.getConnection()) {
+            // Insert quiz
+            String insertQuiz = "INSERT INTO quiz(quiz_name) VALUES (?)";
+            PreparedStatement psQuiz = con.prepareStatement(insertQuiz, Statement.RETURN_GENERATED_KEYS);
+            psQuiz.setString(1, quiz.getQuizName());
+            psQuiz.executeUpdate();
+            ResultSet rs = psQuiz.getGeneratedKeys();
+            if (rs.next()) {
+                int quizId = rs.getInt(1);
+                quiz.setQuizId(quizId);
+
+                // Insert quiz_questions mapping
+                String insertMapping = "INSERT INTO quiz_questions(quiz_id, question_id) VALUES (?, ?)";
+                PreparedStatement psMapping = con.prepareStatement(insertMapping);
+                for (int qId : questionIds) {
+                    psMapping.setInt(1, quizId);
+                    psMapping.setInt(2, qId);
+                    psMapping.addBatch();
+                }
+                psMapping.executeBatch();
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public List<Quiz> getAllQuizzes() {
+        List<Quiz> quizzes = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM quiz";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Quiz quiz = new Quiz();
+                quiz.setQuizId(rs.getInt("quiz_id"));
+                quiz.setQuizName(rs.getString("quiz_name"));
+                quizzes.add(quiz);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return quizzes;
+    }
+
+    public List<Question> getQuizQuestions(int quizId) {
+        List<Question> questions = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT q.* FROM questions q JOIN quiz_questions qq ON q.question_id = qq.question_id WHERE qq.quiz_id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, quizId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Question q = new Question();
+                q.setQuestionId(rs.getInt("question_id"));
+                q.setQuestionText(rs.getString("question_text"));
+                q.setOptionA(rs.getString("option_a"));
+                q.setOptionB(rs.getString("option_b"));
+                q.setOptionC(rs.getString("option_c"));
+                q.setOptionD(rs.getString("option_d"));
+                q.setCorrectAnswer(rs.getString("correct_answer"));
+                questions.add(q);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return questions;
+    }
+
+    public void saveUserScore(int userId, int quizId, int score) {
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "INSERT INTO user_scores(user_id, quiz_id, score) VALUES (?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, quizId);
+            ps.setInt(3, score);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<String[]> getLeaderboard(int quizId) {
+        // Returns List of [username, score]
+        List<String[]> leaderboard = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT u.username, us.score FROM user_scores us JOIN users u ON us.user_id = u.user_id WHERE us.quiz_id = ? ORDER BY us.score DESC";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, quizId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                leaderboard.add(new String[]{rs.getString("username"), String.valueOf(rs.getInt("score"))});
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return leaderboard;
+    }
+}
+------------------------------------------------------------------------------------------------------------
+4)UserDAO.java
+package dao;
+import java.sql.*;
+import model.User;
+import util.DBConnection;
+public class UserDAO {
+	   public boolean registerUser(User user) {
+	        boolean result = false;
+	        try {
+	            Connection conn = DBConnection.getConnection();
+	            String sql = "INSERT INTO users (username, password, fullname) VALUES (?, ?, ?)";
+	            PreparedStatement ps = conn.prepareStatement(sql);
+	            ps.setString(1, user.getUsername());
+	            ps.setString(2, user.getPassword());
+	            ps.setString(3, user.getFullname());
+
+	            int i = ps.executeUpdate();
+	            result = i > 0;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return result;
+	    }
+
+	    public User validateUser(String username, String password) {
+	        User user = null;
+	        try {
+	            Connection conn = DBConnection.getConnection();
+	            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+	            PreparedStatement ps = conn.prepareStatement(sql);
+	            ps.setString(1, username);
+	            ps.setString(2, password);
+	            ResultSet rs = ps.executeQuery();
+
+	            if (rs.next()) {
+	                user = new User();
+	                user.setUserId(rs.getInt("userId"));
+	                user.setUsername(rs.getString("username"));
+	                user.setFullname(rs.getString("fullname"));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return user;
+	    }
+}
+-----------------------------------------------------------------------------
+servlet
+1)AddQuestionServlet.java
+package servlet;
+
+
+import dao.QuestionDAO;
+import model.Question;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+
+public class AddQuestionServlet extends HttpServlet {
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+
+        String questionText = request.getParameter("questionText");
+        String optionA = request.getParameter("optionA");
+        String optionB = request.getParameter("optionB");
+        String optionC = request.getParameter("optionC");
+        String optionD = request.getParameter("optionD");
+        String correctAnswer = request.getParameter("correctAnswer");
+
+        Question question = new Question();
+        question.setQuestionText(questionText);
+        question.setOptionA(optionA);
+        question.setOptionB(optionB);
+        question.setOptionC(optionC);
+        question.setOptionD(optionD);
+        question.setCorrectAnswer(correctAnswer);
+
+        QuestionDAO questionDAO = new QuestionDAO();
+        boolean added=false;
+		try {
+			added = questionDAO.addQuestion(question);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        if (added) {
+            response.sendRedirect("listQuestions.jsp");
+        } else {
+            request.setAttribute("error", "Failed to add question.");
+            request.getRequestDispatcher("addQuestion.jsp").forward(request, response);
+        }
+    }
+}
+-----------------------------------------------------------------
+2)AdminLoginServlet.java
+package servlet;
+
+import dao.AdminDAO;
+import model.Admin;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+
+public class AdminLoginServlet extends HttpServlet {
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        AdminDAO adminDAO = new AdminDAO();
+        Admin admin=null;
+		try {
+			admin = adminDAO.validateAdmin(username, password);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        if (admin != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("admin", admin);
+            response.sendRedirect("adminDashboard.jsp");
+        } else {
+            request.setAttribute("error", "Invalid Username or Password");
+            request.getRequestDispatcher("adminLogin.jsp").forward(request, response);
+        }
+    }
+}
+
+--------------------------------------------------------------------------
+3)AttemptQuizServlet.java
+package servlet;
+
+import dao.QuizDAO;
+import model.Question;
+import model.User;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.util.List;
+
+public class AttemptQuizServlet extends HttpServlet {
+    private QuizDAO quizDAO = new QuizDAO();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        int quizId = Integer.parseInt(req.getParameter("quizId"));
+        List<Question> questions = quizDAO.getQuizQuestions(quizId);
+        req.setAttribute("questions", questions);
+        req.setAttribute("quizId", quizId);
+        req.getRequestDispatcher("attemptQuiz.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        int quizId = Integer.parseInt(req.getParameter("quizId"));
+        User user = (User) req.getSession().getAttribute("user");
+
+        List<Question> questions = quizDAO.getQuizQuestions(quizId);
+
+        int score = 0;
+        for (Question q : questions) {
+            String userAnswer = req.getParameter("answer_" + q.getQuestionId());
+            if (userAnswer != null && userAnswer.equalsIgnoreCase(q.getCorrectAnswer())) {
+                score++;
+            }
+        }
+        quizDAO.saveUserScore(user.getUserId(), quizId, score);
+
+        req.setAttribute("score", score);
+        req.setAttribute("total", questions.size());
+        req.getRequestDispatcher("quizResult.jsp").forward(req, resp);
+    }
+}
+-------------------------------------------------------------------------------------------
+4)LeaderboardServlet.java
+package servlet;
+
+import dao.QuizDAO;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.util.List;
+
+public class LeaderboardServlet extends HttpServlet {
+    private QuizDAO quizDAO = new QuizDAO();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        int quizId = Integer.parseInt(req.getParameter("quizId"));
+        List<String[]> leaderboard = quizDAO.getLeaderboard(quizId);
+
+        req.setAttribute("leaderboard", leaderboard);
+        req.getRequestDispatcher("leaderboard.jsp").forward(req, resp);
+    }
+}
+----------------------------------------------------------------------------------
+5)UserLoginServlet.java
+package servlet;
+
+import dao.UserDAO;
+import model.User;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+
+public class UserLoginServlet extends HttpServlet {
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        UserDAO userDAO = new UserDAO();
+        User user = userDAO.validateUser(username, password);
+
+        if (user != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user);
+            response.sendRedirect("userDashboard.jsp");
+        } else {
+            request.setAttribute("error", "Invalid Username or Password");
+            request.getRequestDispatcher("userLogin.jsp").forward(request, response);
+        }
+    }
+}
+
+----------------------------------------------------------------------------------------------------
+6)UserRegisterServlet.java
+package servlet;
+
+import dao.UserDAO;
+import model.User;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+
+public class UserRegisterServlet extends HttpServlet {
+    private UserDAO userDAO = new UserDAO();
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+        String fullname = req.getParameter("fullname");
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setFullname(fullname);
+
+        boolean registered = userDAO.registerUser(user);
+        if (registered) {
+            resp.sendRedirect("userLogin.jsp");
+        } else {
+            req.setAttribute("error", "Registration failed. Username might already exist.");
+            req.getRequestDispatcher("userRegister.jsp").forward(req, resp);
+        }
+    }
+}
+
+
+-------------------------------------------------------------------------------------------------------------
+
+web-->WebContent
+
+1)addQuestion.jsp
+
+<%@ page session="true" %>
+<html>
+<head><title>Add Question</title></head>
+<body>
+<h2>Add New Question</h2>
+<form action="addQuestion" method="post">
+    Question: <textarea name="questionText" required></textarea><br/>
+    Option A: <input type="text" name="optionA" required/><br/>
+    Option B: <input type="text" name="optionB" required/><br/>
+    Option C: <input type="text" name="optionC" required/><br/>
+    Option D: <input type="text" name="optionD" required/><br/>
+    Correct Answer: 
+    <select name="correctAnswer" required>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+    </select><br/>
+    <input type="submit" value="Add Question"/>
+</form>
+<c:if test="${not empty error}">
+    <p style="color:red;">${error}</p>
+</c:if>
+</body>
+</html>
+
+---------------------------------------------------------------------------------
+2)adminDashboard.jsp
+
+<%@ page import="model.Admin" %>
+<%@ page session="true" %>
+<%
+    Admin admin = (Admin) session.getAttribute("admin");
+    if (admin == null) {
+        response.sendRedirect("adminLogin.jsp");
+        return;
+    }
+%>
+<html>
+<head><title>Admin Dashboard</title></head>
+<body>
+<h2>Welcome, <%= admin.getFullname() %>!</h2>
+<a href="addQuestion.jsp">Add Question</a> | 
+<a href="listQuestions.jsp">View Questions</a>
+</body>
+</html>
+
+-----------------------------------------------------------------------------
+3)attemptQuiz.jsp
+
+<%@ page import="model.Question" %>
+<%@ page session="true" %>
+<%
+    java.util.List<Question> questions = (java.util.List<Question>) request.getAttribute("questions");
+    int quizId = (int) request.getAttribute("quizId");
+%>
+<html>
+<head><title>Attempt Quiz</title></head>
+<body>
+
+-----------------------------------------------------------------------------------
+4)leaderboard.jsp
+
+<%@ page import="java.util.List" %>
+<%@ page import="model.User" %>
+<%@ page session="true" %>
+<%
+    // Assume leaderboard is set in request attribute by AttemptQuizServlet
+    List<Object[]> leaderboard = (List<Object[]>) request.getAttribute("leaderboard");
+    Integer score = (Integer) request.getAttribute("score");
+    Integer totalQuestions = (Integer) request.getAttribute("totalQuestions");
+    Integer quizId = (Integer) request.getAttribute("quizId");
+
+    model.User user = (model.User) session.getAttribute("user");
+    if(user == null){
+        response.sendRedirect("userLogin.jsp");
+        return;
+    }
+%>
+<html>
+<head><title>Leaderboard</title></head>
+<body>
+<h2>Your Score: <%= score %> / <%= totalQuestions %></h2>
+
+<h3>Leaderboard for Quiz ID: <%= quizId %></h3>
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>Rank</th>
+        <th>Username</th>
+        <th>Score</th>
+        <th>Date</th>
+    </tr>
+    <%
+        int rank = 1;
+        if(leaderboard != null){
+            for(Object[] row : leaderboard){
+                String username = (String) row[1];
+                int sc = (Integer) row[2];
+                java.sql.Timestamp date = (java.sql.Timestamp) row[3];
+    %>
+    <tr>
+        <td><%= rank++ %></td>
+        <td><%= username %></td>
+        <td><%= sc %></td>
+        <td><%= date.toString() %></td>
+    </tr>
+    <%
+            }
+        }
+    %>
+</table>
+<br/>
+<a href="userDashboard.jsp">Back to Dashboard</a>
+</body>
+</html>
+
+---------------------------------------------------------------------------------------------------
+5)listQuestions.jsp
+
+<%@ page import="dao.QuestionDAO,model.Question" %>
+<%@ page session="true" %>
+<%
+    dao.QuestionDAO questionDAO = new QuestionDAO();
+    java.util.List<Question> questions = questionDAO.getAllQuestions();
+%>
+<html>
+<head><title>Questions List</title></head>
+<body>
+<h2>All Questions</h2>
+<table border="1">
+    <tr>
+        <th>ID</th><th>Question</th><th>Option A</th><th>Option B</th><th>Option C</th><th>Option D</th><th>Correct Answer</th>
+    </tr>
+    <%
+        for (Question q : questions) {
+    %>
+    <tr>
+        <td><%= q.getQuestionId() %></td>
+        <td><%= q.getQuestionText() %></td>
+        <td><%= q.getOptionA() %></td>
+        <td><%= q.getOptionB() %></td>
+        <td><%= q.getOptionC() %></td>
+        <td><%= q.getOptionD() %></td>
+        <td><%= q.getCorrectAnswer() %></td>
+    </tr>
+    <%
+        }
+    %>
+</table>
+</body>
+</html>
+-------------------------------------------------------------------------------------------------------
+6)userDashboard.jsp
+
+<%@ page import="dao.QuizDAO, model.Quiz" %>
+<%@ page session="true" %>
+<%
+    model.User user = (model.User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect("userLogin.jsp");
+        return;
+    }
+    QuizDAO quizDAO = new QuizDAO();
+    java.util.List<Quiz> quizzes = quizDAO.getAllQuizzes();
+%>
+<html>
+<head><title>User Dashboard</title></head>
+<body>
+<h2>Welcome, <%= user.getFullname() %>!</h2>
+<h3>Available Quizzes</h3>
+<ul>
+    <%
+        for (Quiz q : quizzes) {
+    %>
+    <li><a href="attemptQuiz?quizId=<%= q.getQuizId() %>"><%= q.getQuizName() %></a></li>
+    <%
+        }
+    %>
+</ul>
+</body>
+</html>
+------------------------------------------------------------------------------
+
+7)userLogin.jsp
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head><title>User Login</title></head>
+<body>
+<h2>User Login</h2>
+<form action="userLogin" method="post">
+    Username: <input type="text" name="username" required/><br/>
+    Password: <input type="password" name="password" required/><br/>
+    <input type="submit" value="Login"/>
+</form>
+<c:if test="${not empty error}">
+    <p style="color:red;">${error}</p>
+</c:if>
+</body>
+</html>
+---------------------------------------------------------------------------------------------
+8)userRegister.jsp
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head><title>User Registration</title></head>
+<body>
+<h2>User Registration</h2>
+<form action="userRegister" method="post">
+    Full Name: <input type="text" name="fullname" required/><br/>
+    Username: <input type="text" name="username" required/><br/>
+    Password: <input type="password" name="password" required/><br/>
+    <input type="submit" value="Register"/>
+</form>
+<c:if test="${not empty error}">
+    <p style="color:red;">${error}</p>
+</c:if>
+</body>
+</html>
+
+--------------------------------------------------------------------------
+9)adminLogin.html
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head><title>Admin Login</title></head>
+<body>
+<h2>Admin Login</h2>
+<form action="adminLogin" method="post">
+    Username: <input type="text" name="username" required/><br/>
+    Password: <input type="password" name="password" required/><br/>
+    <input type="submit" value="Login"/>
+</form>
+<c:if test="${not empty error}">
+    <p style="color:red;">${error}</p>
+</c:if>
+</body>
+</html>
+-----------------------------------------------------------------------------
+web-inf
+
+1)web.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+             http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+    <servlet>
+        <servlet-name>AdminLoginServlet</servlet-name>
+        <servlet-class>servlet.AdminLoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminLoginServlet</servlet-name>
+        <url-pattern>/adminLogin</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AddQuestionServlet</servlet-name>
+        <servlet-class>servlet.AddQuestionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddQuestionServlet</servlet-name>
+        <url-pattern>/addQuestion</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserRegisterServlet</servlet-name>
+        <servlet-class>servlet.UserRegisterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserRegisterServlet</servlet-name>
+        <url-pattern>/userRegister</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserLoginServlet</servlet-name>
+        <servlet-class>servlet.UserLoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserLoginServlet</servlet-name>
+        <url-pattern>/userLogin</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AttemptQuizServlet</servlet-name>
+        <servlet-class>servlet.AttemptQuizServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AttemptQuizServlet</servlet-name>
+        <url-pattern>/attemptQuiz</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>userLogin.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>
